@@ -11,16 +11,48 @@ function handleFetchedData(responses) {
             const buyers = dataArray[0].value;
             const orders = dataArray[1].value;
             const products = dataArray[2].value;
-            const listOfProducts = createListOfOrdersWithPairedProduct(orders, products);
+            const ordersAndHisProductPair = createListOfOrdersWithPairedProduct(orders)
+            const buyersAndHisOrderId = createListOfBuyersWithPairedBuyerId(buyers)
+            const newListOfOrders = createListOfOrders(products, ordersAndHisProductPair);
+            createOrderTiles(newListOfOrders, buyersAndHisOrderId)
         })
 }
-
-function createListOfOrdersWithPairedProduct(orders, products) {
-    let ordersWithProducts = [];
+function createListOfOrdersWithPairedProduct(orders) {
+    let orderIdAndHisProductPair = {};
     orders.forEach(
-        order => order[]
-    )
-    return
+        order => {
+            orderIdAndHisProductPair[order.productId] = order
+        });
+    return orderIdAndHisProductPair;
+}
+function createListOfBuyersWithPairedBuyerId(buyers) {
+    let buyerAndHisOrderPair = {};
+    buyers.forEach(
+        buyer => {
+            buyerAndHisOrderPair[buyer.id] = buyer
+        });
+    return buyerAndHisOrderPair;
+}
+function createListOfOrders(products, ordersAndHisProductPair) {
+    const newListOfOrders = [];
+    products.forEach(product => {
+        newListOfOrders.push({
+            id: ordersAndHisProductPair[product.id].id,
+            buyerId: ordersAndHisProductPair[product.id].buyerId,
+            product: {
+                amount: 1,
+                name: product.name,
+            }
+        })
+    })
+    return newListOfOrders
+}
+
+function createOrderTiles (orders, buyers) {
+    orders.forEach(order =>{
+        const tile = createOrderTile(order, buyers[order.buyerId]);
+        document.body.append(tile);
+    })
 }
 
 function createOrderTile(order, buyer) {
@@ -39,16 +71,3 @@ function createOrderTile(order, buyer) {
 
     return tile;
 }
-
-
-
-const tile = createOrderTile({
-        id: 1233,
-        product: {
-            amount: 2,
-            name: 'Razer Keyboard'
-        }},
-    {
-        name: 'Bob Smith'
-    });
-document.body.append(tile);
